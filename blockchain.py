@@ -6,7 +6,7 @@ import hashlib
 # Для хранения данных в блокчейне
 import json
 # Flask предназначен для создания веб-приложения, а jsonify - для
-# отображения блокчейна
+# отображения блокчейнаn
 from flask import Flask, jsonify
 # подключение к бд
 import psycopg2
@@ -36,6 +36,8 @@ database[0].iloc[3] = 'Halpin Pavel'
 database[2].iloc[3] = '89034567890'
 database[0].iloc[4] = 'Kuryanov Denis'
 database[2].iloc[4] = '89045678901'
+database[0].iloc[5] = 'Vasiliev Vasilii'
+database[2].iloc[5] = '89056789012'
 print(database)
 class Blockchain:
 # Эта функция ниже создана для создания самого первого блока и установки его хэша равным "0"
@@ -44,6 +46,7 @@ class Blockchain:
         self.create_block(proof=1, hashed_data='0')
 # Эта функция ниже создана для добавления дополнительных блоков в цепочку
     def create_block(self, proof, hashed_data):
+
         block = {
             'index': len(self.chain) + 1,
             'name': str(database[0].iloc[len(self.chain)]),
@@ -51,7 +54,9 @@ class Blockchain:
             'phone': str(database[2].iloc[len(self.chain)]),
             'hashed_data': str(database[3].iloc[len(self.chain)]),
             'adress': str(database[4].iloc[len(self.chain)]),
-            'proof': proof  # добавлено
+            'proof': proof,
+
+
         }
 
         self.chain.append(block)
@@ -75,22 +80,24 @@ class Blockchain:
         encoded_block = json.dumps(block, sort_keys=True).encode()
         return hashlib.sha256(encoded_block).hexdigest()
 
-def chain_valid(self, chain):
-    previous_block = chain[0]
-    block_index = 1
-    while block_index < len(chain):
-        block = chain[block_index]
-        if block['hashed_data'] != self.hash(previous_block):
-            return False
-        previous_proof = previous_block['proof']
-        proof = block['proof']
-        hash_operation = hashlib.sha256(
-            str(proof ** 2 - previous_proof ** 2).encode()).hexdigest()
-        if hash_operation[:5] != '00000':
-            return False
-        previous_block = block
-        block_index += 1
-    return True
+
+    def chain_valid(self, chain):
+        previous_block = chain[0]
+        block_index = 1
+        while block_index < len(chain):
+            block = chain[block_index]
+            if block['hashed_data'] != self.hash(previous_block):
+                return False
+            previous_proof = previous_block['proof']
+            proof = block['proof']
+            hash_operation = hashlib.sha256(
+                str(proof ** 2 - previous_proof ** 2).encode()).hexdigest()
+            if hash_operation[:5] != '00000':
+                return False
+            previous_block = block
+            block_index += 1
+        return True
+
 
 # Создание веб-приложения с использованием flask
 app = Flask(__name__)
@@ -99,10 +106,11 @@ blockchain = Blockchain()
 # Страница с подсказками
 @app.route('/')
 def index():
-    return "Майнинг нового блока: /mine_block  " \
-           "Отобразить блокчейн в формате json: /display_chain  " \
-           "Проверка валидности блокчейна: /valid  "
-
+    return 'Майнинг нового блока: /mine_block  ' \
+           'Отобразить блокчейн в формате json: /display_chain  ' \
+           'Проверка валидности блокчейна: /valid  ' \
+ \
+ \
 # Майнинг нового блока
 @app.route('/mine_block', methods=['GET'])
 def mine_block():
@@ -144,5 +152,8 @@ def valid():
     else:
         response = {'message': 'The Blockchain is not valid.'}
     return jsonify(response), 200
+
 # Запустите сервер flask локально
 app.run(debug = True)
+
+
